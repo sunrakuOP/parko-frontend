@@ -91,3 +91,25 @@ export interface CreateReservaDto {
   fechaInicio: string;
   fechaFin: string;
 }
+
+export type EstadoFila = "sin_fila" | "corta" | "larga";
+
+/** Un "lado" o zona de un parqueadero; se controla por cupos, no plaza por plaza. */
+export interface Sector {
+  id: number;
+  parqueaderoId: number;
+  nombre: string;
+  capacidad: number;
+  ocupados: number;
+  fila: EstadoFila;
+  /** true mientras la capacidad sea una aproximación y no un dato oficial. */
+  capacidadEstimada: boolean;
+  activo: boolean;
+}
+export interface UpdateSectorDto {
+  nombre?: string;
+  capacidad?: number;
+  ocupados?: number;
+  fila?: EstadoFila;
+  capacidadEstimada?: boolean;
+}
