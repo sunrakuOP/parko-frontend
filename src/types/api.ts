@@ -1,76 +1,93 @@
 /**
- * Tipos compartidos con el backend NestJS
- * Espejo de las entities y DTOs del backend para tipar el frontend.
+ * Tipos compartidos con el backend NestJS de Parko.
+ * Espejo de las entities y DTOs del backend (nombres de campo en español, decisión del equipo).
  */
 
+export type UserRole = "admin" | "operador" | "conductor";
+export type TipoVehiculo = "carro" | "moto";
+export type TipoEspacio = "carro" | "moto" | "discapacitado";
+export type EstadoEspacio = "disponible" | "ocupado" | "reservado" | "mantenimiento";
+export type EstadoReserva = "pendiente" | "confirmada" | "cancelada" | "completada";
+
 export interface User {
-  id: string;
-  name: string;
+  id: number;
+  nombre: string;
   email: string;
-  age: number;
-  phone: string;
-  isActive: boolean;
+  telefono: string;
+  rol: UserRole;
+  activo: boolean;
 }
-
 export interface CreateUserDto {
-  id: string;
-  name: string;
+  nombre: string;
   email: string;
-  age: number;
-  phone: string;
+  telefono: string;
+  rol?: UserRole;
+}
+export type UpdateUserDto = Partial<CreateUserDto>;
+
+export interface Vehiculo {
+  placa: string;
+  marca: string;
+  modelo: string;
+  tipo: TipoVehiculo;
+  usuarioId: number;
+  activo: boolean;
+}
+export interface CreateVehiculoDto {
+  placa: string;
+  marca: string;
+  modelo: string;
+  tipo: TipoVehiculo;
+  usuarioId: number;
 }
 
-export interface UpdateUserDto {
-  name?: string;
-  email?: string;
-  age?: number;
-  phone?: string;
+export interface Parqueadero {
+  id: number;
+  nombre: string;
+  direccion: string;
+  capacidadTotal: number;
+  activo: boolean;
+}
+export interface CreateParqueaderoDto {
+  nombre: string;
+  direccion: string;
+  capacidadTotal: number;
 }
 
-export interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  stock: number;
-  isActive: boolean;
-  createdAt: string;
+export interface Espacio {
+  id: number;
+  parqueaderoId: number;
+  numero: string;
+  tipo: TipoEspacio;
+  estado: EstadoEspacio;
+}
+export interface CreateEspacioDto {
+  parqueaderoId: number;
+  numero: string;
+  tipo: TipoEspacio;
+}
+/** `reservado` solo lo asigna el backend al crear una reserva. */
+export interface UpdateEspacioDto {
+  tipo?: TipoEspacio;
+  estado?: Exclude<EstadoEspacio, "reservado">;
 }
 
-export interface CreateProductDto {
-  name: string;
-  description?: string;
-  price: number;
-  stock: number;
+export interface Reserva {
+  id: number;
+  usuarioId: number;
+  vehiculoPlaca: string;
+  espacioId: number;
+  fechaInicio: string;
+  fechaFin: string;
+  estado: EstadoReserva;
+  usuario?: User;
+  vehiculo?: Vehiculo;
+  espacio?: Espacio;
 }
-
-export interface UpdateProductDto {
-  name?: string;
-  description?: string;
-  price?: number;
-  stock?: number;
-}
-
-export interface OrderItem {
-  id: string;
-  orderId: string;
-  productId: string;
-  quantity: number;
-  unitPrice: number;
-  product: Product;
-}
-
-export interface Order {
-  id: string;
-  userId: string;
-  user: User;
-  items: OrderItem[];
-  total: number;
-  status: "PENDING" | "PAID" | "CANCELLED";
-  createdAt: string;
-}
-
-export interface CreateOrderDto {
-  userId: string;
-  items: { productId: string; quantity: number }[];
+export interface CreateReservaDto {
+  usuarioId: number;
+  vehiculoPlaca: string;
+  espacioId: number;
+  fechaInicio: string;
+  fechaFin: string;
 }

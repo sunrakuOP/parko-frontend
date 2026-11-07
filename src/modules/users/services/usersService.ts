@@ -1,16 +1,14 @@
 /**
- * usersService — capa de servicio para Users
- * Patrón igual que en NextJS-Api-Shop: cada módulo tiene su services/
- * Usa apiClient de lib/api.ts (fetch tipado)
+ * usersService — capa de servicio para Users (conductores, operadores, admins).
+ * Cada módulo tiene su services/ y usa apiClient de lib/api.ts.
  */
-
 import { apiClient } from "@/lib/api";
 import type { User, CreateUserDto, UpdateUserDto } from "@/types/api";
 
 export const usersService = {
   getAll: () => apiClient.get<User[]>("/users"),
-  getById: (id: string) => apiClient.get<User>(`/users/${id}`),
+  getById: (id: number | string) => apiClient.get<User>(`/users/${id}`),
   create: (data: CreateUserDto) => apiClient.post<User>("/users", data),
-  update: (id: string, data: UpdateUserDto) => apiClient.put<User>(`/users/${id}`, data),
-  delete: (id: string) => apiClient.delete<void>(`/users/${id}`),
+  update: (id: number, data: UpdateUserDto) => apiClient.put<User>(`/users/${id}`, data),
+  delete: (id: number) => apiClient.delete<User>(`/users/${id}`),
 };
