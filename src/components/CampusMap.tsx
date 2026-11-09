@@ -7,27 +7,33 @@ import type { Parqueadero, Sector } from "@/types/api";
 type Rect = { x: number; y: number; w: number; h: number };
 type Lote = { label: { x: number; y: number }; rects: (Rect & { nombre: string })[] };
 
-// Plano ESQUEMÁTICO (no está a escala). Cañas Gordas en L (Palmas → Lagos) dentro del campus,
-// Almendros atrás junto a la cancha y el CDL, Gualanday más abajo sobre la vía de la Icesi.
+/*
+ * Plano ESQUEMÁTICO (no está a escala), orientado como en el mapa real:
+ *  - La Av. Cañasgordas corre recta, de arriba a abajo, a la derecha.
+ *  - La universidad es una manzana completa contra la Avenida; detrás, la calle paralela (Cl. 17A).
+ *  - Más atrás, otra paralela (Cl. 16). Gualanday queda entre ambas, sobre la Cra. 122.
+ *  - La Cra. 122 (vía de la Icesi) cruza la Avenida y sigue; la Icesi queda en la esquina diagonal.
+ *  - Almendros queda sobre la paralela Cl. 17A, debajo del campus, junto a la cancha.
+ */
 const LOTES: Record<"canas" | "almendros" | "gualanday", Lote> = {
   canas: {
-    label: { x: 128, y: 112 },
+    label: { x: 352, y: 118 },
     rects: [
-      { nombre: "Palmas", x: 58, y: 70, w: 54, h: 100 },
-      { nombre: "Centro", x: 58, y: 176, w: 54, h: 94 },
-      { nombre: "Lagos", x: 118, y: 222, w: 262, h: 48 },
+      { nombre: "Palmas", x: 278, y: 70, w: 54, h: 96 },
+      { nombre: "Centro", x: 278, y: 172, w: 54, h: 92 },
+      { nombre: "Lagos", x: 338, y: 220, w: 252, h: 44 },
     ],
   },
   almendros: {
-    label: { x: 126, y: 396 },
+    label: { x: 252, y: 376 },
     rects: [
-      { nombre: "Cedro Rosado", x: 126, y: 408, w: 88, h: 72 },
-      { nombre: "Cancha y CDL", x: 222, y: 408, w: 88, h: 72 },
+      { nombre: "Cedro Rosado", x: 252, y: 392, w: 108, h: 40 },
+      { nombre: "Cancha y CDL", x: 368, y: 392, w: 108, h: 40 },
     ],
   },
   gualanday: {
-    label: { x: 126, y: 534 },
-    rects: [{ nombre: "Lote Gualanday", x: 126, y: 546, w: 196, h: 54 }],
+    label: { x: 90, y: 575 },
+    rects: [{ nombre: "Lote Gualanday", x: 90, y: 496, w: 128, h: 56 }],
   },
 };
 
@@ -45,11 +51,16 @@ function celdas(r: Rect, n: number) {
   })).filter((c) => c.y + c.size <= r.y + r.h + 1);
 }
 
+const Calle = ({ d, w }: { d: string; w: number }) => (
+  <>
+    <path d={d} stroke="var(--paper-2)" strokeWidth={w + 6} fill="none" strokeLinecap="round" />
+    <path d={d} stroke="#fff" strokeWidth={w} fill="none" strokeLinecap="round" />
+  </>
+);
+
 export default function CampusMap({ parqueaderos, sectores }: { parqueaderos: Parqueadero[]; sectores: Sector[] }) {
-  // árboles decorativos del campus (posiciones fijas, deterministas)
   const arboles = [
-    [150, 60, 14], [200, 80, 18], [260, 55, 12], [330, 90, 16], [370, 60, 12], [175, 130, 12],
-    [250, 150, 20], [320, 160, 14], [380, 130, 12], [150, 190, 11],
+    [400, 64, 13], [452, 88, 17], [510, 60, 12], [566, 96, 15], [420, 150, 18], [490, 168, 13], [560, 170, 16], [372, 188, 11], [596, 140, 11],
   ];
 
   return (
@@ -57,34 +68,42 @@ export default function CampusMap({ parqueaderos, sectores }: { parqueaderos: Pa
       className="h-auto w-full" style={{ fontFamily: "var(--font-body), sans-serif" }}>
       <rect width="800" height="640" rx="28" fill="var(--paper-3)" />
 
-      {/* manzanas de la ciudad */}
-      {[[470, 40, 130, 90], [630, 60, 120, 130], [480, 170, 90, 110], [610, 240, 140, 100], [490, 330, 110, 150], [640, 380, 110, 90], [40, 330, 70, 150], [340, 330, 60, 60]].map(([x, y, w, h], i) => (
-        <rect key={i} x={x} y={y} width={w} height={h} rx={14} fill="var(--paper-2)" opacity=".7" />
+      {/* manzanas */}
+      {[[96, 70, 112, 90], [96, 190, 112, 60], [20, 90, 28, 150], [250, 306, 6, 6], [506, 300, 90, 120], [680, 40, 100, 110], [680, 190, 100, 90], [680, 310, 100, 90], [20, 300, 30, 110], [250, 560, 360, 60]].map(([x, y, w, h], i) => (
+        <rect key={i} x={x} y={y} width={w} height={h} rx={12} fill="var(--paper-2)" opacity=".6" />
       ))}
+      <text x="102" y="120" fontSize="12" fontWeight="700" fill="var(--muted)">Col. Berchmans</text>
 
-      {/* Avenida Cañasgordas y vía de la Icesi */}
-      <path d="M452 -10 C 446 200 430 420 426 650" stroke="var(--paper-2)" strokeWidth="44" fill="none" strokeLinecap="round" />
-      <path d="M452 -10 C 446 200 430 420 426 650" stroke="#fff" strokeWidth="38" fill="none" strokeLinecap="round" />
-      <path d="M452 -10 C 446 200 430 420 426 650" stroke="var(--ink)" strokeOpacity=".25" strokeWidth="2" strokeDasharray="12 12" fill="none" />
-      <path d="M430 478 C 340 500 250 505 118 520 C 90 523 80 560 100 612" stroke="var(--paper-2)" strokeWidth="30" fill="none" strokeLinecap="round" />
-      <path d="M430 478 C 340 500 250 505 118 520 C 90 523 80 560 100 612" stroke="#fff" strokeWidth="24" fill="none" strokeLinecap="round" />
-      <text x="474" y="320" transform="rotate(-92 474 320)" fontSize="17" fontWeight="700" fill="var(--muted)" letterSpacing="2">AV. CAÑASGORDAS</text>
-      <text x="322" y="504" fontSize="12" fontWeight="700" fill="var(--muted)" letterSpacing="1">VÍA DE LA ICESI</text>
-      <text x="446" y="626" fontSize="15" fontWeight="700" fill="var(--muted)">↓ Pance</text>
-      <text x="520" y="590" fontSize="15" fontWeight="700" fill="var(--muted)">Univ. Icesi</text>
+      {/* calles paralelas a la Avenida, detrás de la universidad */}
+      <Calle d="M236 -10 L230 650" w={22} />
+      <Calle d="M66 -10 L60 650" w={22} />
+      <text x="224" y="170" transform="rotate(-90 224 170)" fontSize="12" fontWeight="700" fill="var(--muted)" letterSpacing="2">CALLE 17A</text>
+      <text x="54" y="170" transform="rotate(-90 54 170)" fontSize="12" fontWeight="700" fill="var(--muted)" letterSpacing="2">CALLE 16</text>
 
-      {/* campus */}
-      <rect x="34" y="32" width="380" height="262" rx="26" fill="var(--canopy)" fillOpacity=".1" stroke="var(--canopy)" strokeOpacity=".45" strokeDasharray="7 7" />
+      {/* Av. Cañasgordas (recta) y Cra. 122 / vía de la Icesi, que cruza la Avenida y sigue */}
+      <Calle d="M640 -10 C 636 200 632 420 628 650" w={46} />
+      <path d="M640 -10 C 636 200 632 420 628 650" stroke="var(--ink)" strokeOpacity=".25" strokeWidth="2" strokeDasharray="12 12" fill="none" />
+      <Calle d="M-10 462 C 200 458 420 454 810 448" w={30} />
+      <text x="668" y="300" transform="rotate(-90 668 300)" fontSize="15" fontWeight="800" fill="var(--muted)" letterSpacing="2">AV. CAÑASGORDAS</text>
+      <text x="250" y="448" fontSize="12" fontWeight="800" fill="var(--muted)" letterSpacing="1.5">CRA. 122 · VÍA DE LA ICESI</text>
+      <text x="566" y="632" fontSize="14" fontWeight="800" fill="var(--muted)">↓ Pance</text>
+
+      {/* Icesi: esquina diagonal de la vía con la Avenida */}
+      <rect x="668" y="482" width="112" height="124" rx="14" fill="var(--ink)" fillOpacity=".08" stroke="var(--ink)" strokeOpacity=".3" strokeDasharray="6 6" />
+      <text x="724" y="548" textAnchor="middle" fontSize="15" fontWeight="800" fill="var(--ink-2)">Univ. Icesi</text>
+
+      {/* campus: una manzana completa contra la Avenida */}
+      <rect x="258" y="34" width="354" height="250" rx="24" fill="var(--canopy)" fillOpacity=".1" stroke="var(--canopy)" strokeOpacity=".45" strokeDasharray="7 7" />
       {arboles.map(([x, y, r], i) => (
         <circle key={i} cx={x} cy={y} r={r} fill="var(--canopy)" fillOpacity=".22" />
       ))}
-      <text x="54" y="54" fontSize="15" fontWeight="800" fill="var(--canopy)" letterSpacing="2">CAMPUS JAVERIANA CALI</text>
+      <text x="376" y="56" fontSize="14" fontWeight="800" fill="var(--canopy)" letterSpacing="2">CAMPUS JAVERIANA CALI</text>
 
       {/* cancha de fútbol (junto a Almendros) */}
-      <rect x="140" y="326" width="160" height="56" rx="8" fill="var(--canopy)" fillOpacity=".16" stroke="var(--canopy)" strokeOpacity=".5" />
-      <line x1="220" y1="326" x2="220" y2="382" stroke="var(--canopy)" strokeOpacity=".5" />
-      <circle cx="220" cy="354" r="11" fill="none" stroke="var(--canopy)" strokeOpacity=".5" />
-      <text x="140" y="318" fontSize="14" fontWeight="700" fill="var(--canopy)">cancha de fútbol</text>
+      <rect x="500" y="316" width="104" height="50" rx="8" fill="var(--canopy)" fillOpacity=".16" stroke="var(--canopy)" strokeOpacity=".5" />
+      <line x1="552" y1="316" x2="552" y2="366" stroke="var(--canopy)" strokeOpacity=".5" />
+      <circle cx="552" cy="341" r="10" fill="none" stroke="var(--canopy)" strokeOpacity=".5" />
+      <text x="500" y="308" fontSize="12" fontWeight="700" fill="var(--canopy)">cancha de fútbol</text>
 
       {/* parqueaderos */}
       {parqueaderos.filter((p) => p.activo).map((p) => {
@@ -109,7 +128,7 @@ export default function CampusMap({ parqueaderos, sectores }: { parqueaderos: Pa
           <Link key={p.id} href={`/parqueaderos/${p.id}`} aria-label={`${p.nombre}: ${totalLibres} cupos libres. Ver detalle`}>
             <g className="lot-link">
               {dibujados.map(({ s, r }) => {
-                const n = Math.min(s.capacidad, 60);
+                const n = Math.min(s.capacidad, 40);
                 const llenas = Math.round((n * Math.min(s.ocupados, s.capacidad)) / s.capacidad);
                 const colaN = s.fila === "larga" ? 4 : s.fila === "corta" ? 2 : 0;
                 return (

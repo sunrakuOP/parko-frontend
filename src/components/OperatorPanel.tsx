@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import Cells from "./Cells";
+import Ring from "./Ring";
+import FilaLane from "./FilaLane";
 import Ticket from "./Ticket";
-import { FilaChip, NivelChip } from "./Chips";
+import { NivelBadge } from "./Chips";
 import { ApiError } from "@/lib/api";
 import { libres, nivel } from "@/lib/cupos";
 import { useSectores } from "@/hooks/useSectores";
@@ -84,18 +85,16 @@ export default function OperatorPanel({ parqueaderos, sectoresIniciales }: { par
 
         <div className="mt-6 grid gap-5">
           {suyos.map((s) => (
-            <article key={s.id} className="rounded-[var(--r)] border-2 border-ink p-5" style={{ background: "var(--paper-3)" }}>
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
+            <article key={s.id} className="sector-card" style={{ ["--tone" as string]: `var(--tone-${nivel(s)})` }}>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-4">
+                <Ring libres={libres(s)} capacidad={s.capacidad} nivel={nivel(s)} />
+                <div className="min-w-0 flex-1">
                   <h3 className="h3">{s.nombre}</h3>
-                  <div className="mt-2 flex flex-wrap gap-2"><NivelChip nivel={nivel(s)} /><FilaChip fila={s.fila} /></div>
+                  <p className="small mt-0.5">{libres(s)} libres de {s.capacidad}{s.capacidadEstimada ? "*" : ""}</p>
+                  <div className="mt-2"><NivelBadge nivel={nivel(s)} /></div>
                 </div>
-                <p className="text-right">
-                  <span className="num text-6xl">{libres(s)}</span>
-                  <span className="small block">libres de {s.capacidad}{s.capacidadEstimada ? "*" : ""}</span>
-                </p>
+                <FilaLane fila={s.fila} />
               </div>
-              <div className="mt-4"><Cells capacidad={s.capacidad} ocupados={s.ocupados} /></div>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <button className="btn btn-brick" disabled={busy === s.id || libres(s) === 0} onClick={() => hacer(s.id, () => sectoresService.ajustarOcupacion(s.id, 1))}>
@@ -108,9 +107,9 @@ export default function OperatorPanel({ parqueaderos, sectoresIniciales }: { par
 
               <fieldset className="mt-5">
                 <legend className="small mb-2">Fila en la entrada</legend>
-                <div className="flex flex-wrap gap-2">
+                <div className="segmented" role="group" aria-label="Estado de la fila">
                   {FILAS.map((f) => (
-                    <button key={f.v} className="tab" aria-pressed={s.fila === f.v} aria-current={s.fila === f.v ? "true" : undefined} disabled={busy === s.id}
+                    <button key={f.v} aria-pressed={s.fila === f.v} disabled={busy === s.id}
                       onClick={() => hacer(s.id, () => sectoresService.update(s.id, { fila: f.v }))}>
                       {f.t}
                     </button>
@@ -141,7 +140,7 @@ export default function OperatorPanel({ parqueaderos, sectoresIniciales }: { par
       </div>
 
       <aside className="lg:col-span-4">
-        <form onSubmit={emitir} className="rounded-[var(--r)] border-2 border-ink p-5 lg:sticky lg:top-6" style={{ background: "var(--paper-3)" }}>
+        <form onSubmit={emitir} className="sector-card lg:sticky lg:top-6">
           <h2 className="h3">Entrada con tiquete</h2>
           <p className="small mt-1">Registra el vehículo, suma un cupo y genera el tiquete.</p>
           <div className="mt-4">

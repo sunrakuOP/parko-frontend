@@ -1,11 +1,6 @@
-import { FILA_TEXTO, NIVEL_TEXTO, type Nivel } from "@/lib/cupos";
-import type { EstadoFila } from "@/types/api";
+import { NIVEL_TEXTO, type Nivel } from "@/lib/cupos";
 
-export const NivelChip = ({ nivel }: { nivel: Nivel }) => (
-  <span className="chip" data-tone={nivel}>{NIVEL_TEXTO[nivel]}</span>
-);
-
-const TONO_FILA: Record<EstadoFila, Nivel> = { sin_fila: "libre", corta: "pocos", larga: "lleno" };
-export const FilaChip = ({ fila }: { fila: EstadoFila }) => (
-  <span className="chip" data-tone={TONO_FILA[fila]}>{FILA_TEXTO[fila]}</span>
+/** Estado del cupo en una pastilla suave (sin borde), con punto de color. */
+export const NivelBadge = ({ nivel }: { nivel: Nivel }) => (
+  <span className="badge" data-tone={nivel}>{NIVEL_TEXTO[nivel]}</span>
 );
